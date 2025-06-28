@@ -1,16 +1,19 @@
 import streamlit as st
-from transformers import pipeline
+from transformers import pipeline, set_seed
 
 st.set_page_config(page_title="AI Learning Path Recommender", page_icon="📚")
 st.title("📚 AI-Powered Personalized Learning Path Generator")
 
+# Load lightweight GPT2
 @st.cache_resource
 def load_model():
-    return pipeline("text-generation", model="tiiuae/falcon-7b-instruct", tokenizer="tiiuae/falcon-7b-instruct")
+    model = pipeline("text-generation", model="gpt2")
+    return model
 
 generator = load_model()
+set_seed(42)
 
-# Inputs
+# UI
 st.markdown("Fill in your learning preferences to get a custom study plan.")
 subject = st.selectbox("Choose a subject/topic", ["Python", "Java", "C++", "Data Structures", "DBMS", "SQL", "OOP"])
 goal = st.selectbox("Your learning goal", [
@@ -21,13 +24,12 @@ daily_time = st.selectbox("How much time can you study per day?", ["30 mins", "1
 if st.button("Generate My Learning Path"):
     with st.spinner("Generating your personalized plan..."):
         prompt = (
-            f"Create a personalized {subject} study plan to help a student who wants to '{goal}' "
-            f"and can study '{daily_time}' daily. Split the content into a clear weekly learning roadmap. "
-            f"Include what to learn each week and mention resources like videos, articles or exercises."
+            f"Create a personalized weekly study plan for {subject} to help a student who wants to {goal} "
+            f"and can study {daily_time} daily. Suggest weekly tasks and free resources if possible."
         )
 
         try:
-            result = generator(prompt, max_new_tokens=512)[0]["generated_text"]
+            result = generator(prompt, max_new_tokens=250)[0]["generated_text"]
             output = result.replace(prompt, "").strip()
 
             st.success("✅ Here's your personalized learning path!")
@@ -35,4 +37,4 @@ if st.button("Generate My Learning Path"):
             st.markdown(output)
 
         except Exception as e:
-            st.error(f"❌ Failed to generate learning plan. Error: {e}")
+            st.error(f"❌ Error: {e}")
