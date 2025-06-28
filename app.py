@@ -30,20 +30,28 @@ daily_time = st.selectbox("How much time can you study per day?", ["30 mins", "1
 if st.button("Generate Learning Path"):
     with st.spinner("Generating your personalized plan..."):
         prompt = (
-            f"Create a 4-week study plan for {subject} to help a student who wants to {goal} "
-            f"and can study {daily_time} daily. Provide clear weekly tasks, and include this official learning resource: {resources[subject]}. "
-            "Avoid fake or made-up links. Format clearly with weeks and bullet points."
+            f"Generate a 4-week beginner-friendly study plan to learn {subject}. "
+            f"The goal is: {goal}. The student can study {daily_time} every day. "
+            "Format it clearly like:\n"
+            "Week 1:\n- Topic 1\n- Topic 2\nWeek 2:\n- Topic 3\n...\n"
+            f"End by recommending this link: {resources[subject]}"
         )
 
         try:
-            result = generator(prompt, max_new_tokens=250)[0]["generated_text"]
+            result = generator(prompt, max_new_tokens=300)[0]["generated_text"]
             output = result.replace(prompt, "").strip()
-            output = re.sub(r'http\S+', '', output)
-            output += f"\n\n🔗 Recommended Resource: {resources[subject]}"
+
+            # Extract only "Week" blocks
+            weeks = re.findall(r"(Week\s\d+:(?:.*?)(?=Week\s\d+:|$))", output, re.DOTALL)
+            cleaned = "\n\n".join(weeks).strip()
+            if not cleaned:
+                cleaned = output
+
+            cleaned += f"\n\n🔗 Recommended Resource: {resources[subject]}"
 
             st.success("✅ Here's your personalized learning path!")
             st.markdown("---")
-            st.markdown(output)
+            st.markdown(cleaned)
 
         except Exception as e:
             st.error(f"❌ Error: {e}")
