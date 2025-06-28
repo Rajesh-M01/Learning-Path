@@ -29,10 +29,12 @@ The app uses a pre-trained GPT2 model via Hugging Face’s Transformers pipeline
 ## Working
 
 Choose the required Topic, Learning Goal, adn the amount of time you can dedicate per day 
+
 ![image](https://github.com/user-attachments/assets/f0fd445c-fb89-42cb-a399-e3bf6d576163)
 
 
 Then click on the "Generate My Learning Path" to get your learning path
+
 ![image](https://github.com/user-attachments/assets/fd57e4cd-6899-4fe5-b498-4bdc190fc38f)
 
 
